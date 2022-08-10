@@ -45,7 +45,7 @@ def crop_image(image, start_row, start_col, num_rows, num_cols):
     out = None
 
     ### YOUR CODE HERE
-    pass
+    out = image[start_row:start_row+num_rows, start_col:start_col+num_cols, :]
     ### END YOUR CODE
 
     return out
@@ -68,7 +68,7 @@ def dim_image(image):
     out = None
 
     ### YOUR CODE HERE
-    pass
+    out = 0.5*np.square(image)
     ### END YOUR CODE
 
     return out
@@ -96,7 +96,12 @@ def resize_image(input_image, output_rows, output_cols):
     #    > This should require two nested for loops!
 
     ### YOUR CODE HERE
-    pass
+    
+    row_scale_factor = input_rows/output_rows
+    col_scale_factor = input_cols/output_cols
+    for i in range(output_rows):
+        for j in range(output_cols):
+            output_image[i, j, :] = input_image[int(i*row_scale_factor), int(j*col_scale_factor), :]
     ### END YOUR CODE
 
     # 3. Return the output image
@@ -119,7 +124,11 @@ def rotate2d(point, theta):
     # Reminder: np.cos() and np.sin() will be useful here!
 
     ## YOUR CODE HERE
-    pass
+    x, y = point
+    newX, newY = x*np.cos(theta)-y*np.sin(theta), x*np.sin(theta)+y*np.cos(theta)
+    print("newX", newX)
+    print("newY", newY)
+    return np.array([newX, newY])
     ### END YOUR CODE
 
 
@@ -139,9 +148,12 @@ def rotate_image(input_image, theta):
 
     # 1. Create an output image with the same shape as the input
     output_image = np.zeros_like(input_image)
-
+    # rotate2d([i,j])
     ## YOUR CODE HERE
-    pass
+    for i in range(input_rows):
+        for j in range(input_cols):
+            newX, newY = rotate2d(np.array([i, j]), theta)
+            output_image[newX, newY, :] = input_image[i, j, :]
     ### END YOUR CODE
 
     # 3. Return the output image

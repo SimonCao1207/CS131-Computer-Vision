@@ -126,8 +126,6 @@ def rotate2d(point, theta):
     ## YOUR CODE HERE
     x, y = point
     newX, newY = x*np.cos(theta)-y*np.sin(theta), x*np.sin(theta)+y*np.cos(theta)
-    print("newX", newX)
-    print("newY", newY)
     return np.array([newX, newY])
     ### END YOUR CODE
 
@@ -150,10 +148,14 @@ def rotate_image(input_image, theta):
     output_image = np.zeros_like(input_image)
     # rotate2d([i,j])
     ## YOUR CODE HERE
-    for i in range(input_rows):
-        for j in range(input_cols):
-            newX, newY = rotate2d(np.array([i, j]), theta)
-            output_image[newX, newY, :] = input_image[i, j, :]
+    center = np.array([input_rows/2, input_cols/2])
+    for x in range(input_rows):
+        for y in range(input_cols):
+            newX = int((x-center[0])*np.cos(theta) - (y-center[1])*np.sin(theta) + center[0])
+            newY = int((x-center[0])*np.sin(theta) + (y-center[1])*np.cos(theta) + center[1])
+            if (newX >= 0 and newY >=0 and newX < input_rows and newY < input_cols):
+                output_image[x, y, :] = input_image[newX, newY, :]              
+            else: output_image[x, y, :] = np.array([0, 0, 0])
     ### END YOUR CODE
 
     # 3. Return the output image

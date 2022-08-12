@@ -29,9 +29,17 @@ def conv_nested(image, kernel):
     out = np.zeros((Hi, Wi))
 
     ### YOUR CODE HERE
-    pass
+    for i in range(Hi): 
+        for j in range(Wi):
+            s = 0
+            for m in range(Hk):
+                for n in range(Wk):
+                    x, y = i-m+1, j-n+1
+                    if (x>=0 and y>=0 and x<Hi and y<Wi):
+                        s += kernel[m][n]*image[x][y]
+                    else: continue
+            out[i][j] = s
     ### END YOUR CODE
-
     return out
 
 def zero_pad(image, pad_height, pad_width):

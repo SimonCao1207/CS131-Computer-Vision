@@ -34,45 +34,15 @@ def conv_nested(image, kernel):
             s = 0
             for m in range(Hk):
                 for n in range(Wk):
-                    x, y = i-m+1, j-n+1
+                    x, y = i-Hk//2+m, j-Wk//2+n
                     if (x>=0 and y>=0 and x<Hi and y<Wi):
-                        s += kernel[m][n]*image[x][y]
+                        s += image[x][y]*kernel[Hk-1-m][Wk-1-n]
                     else: continue
             out[i][j] = s
     ### END YOUR CODE
     return out
 
-def zero_pad(image, pad_height, pad_widef conv_fast(image, kernel):
-    """ An efficient implementation of convolution filter.
-
-    This function uses element-wise multiplication and np.sum()
-    to efficiently compute weighted sum of neighborhood at each
-    pixel.
-
-    Hints:
-        - Use the zero_pad function you implemented above
-        - There should be two nested for-loops
-        - You may find np.flip() and np.sum() useful
-
-    Args:
-        image: numpy array of shape (Hi, Wi).
-        kernel: numpy array of shape (Hk, Wk). Dimensions will be odd.
-
-    Returns:
-        out: numpy array of shape (Hi, Wi).
-    """
-    Hi, Wi = image.shape
-    Hk, Wk = kernel.shape
-    out = np.zeros((Hi, Wi))
-
-    ### YOUR CODE HERE
-    zeroPadImage = zeroPad(image, Hk//2, Wk//2)
-    for i in range(Hi):
-        for j in range(Hj):
-            out[i][j] = zeroPadImage[i-Hk//2:i+Hk//2][j-Wk//2:j+Wk//2]*kernel
-    ### END YOUR CODE
-
-    return outdth):
+def zero_pad(image, pad_height, pad_width):
     """ Zero-pad an image.
 
     Ex: a 1x1 image [[1]] with pad_height = 1, pad_width = 2 becomes:
@@ -105,8 +75,6 @@ def zero_pad(image, pad_height, pad_widef conv_fast(image, kernel):
     ### END YOUR CODE
     return out
 
-
-
 def conv_fast(image, kernel):
     """ An efficient implementation of convolution filter.
 
@@ -129,9 +97,9 @@ def conv_fast(image, kernel):
     Hi, Wi = image.shape
     Hk, Wk = kernel.shape
     out = np.zeros((Hi, Wi))
+    
     ### YOUR CODE HERE
-    kernel = np.flip(kernel, 0)
-    kernel = np.flip(kernel, 1)
+    kernel = np.flip(np.flip(kernel, axis=0), axis=1)
     zeroPadImage = zero_pad(image, Hk//2, Wk//2)
     for i in range(Hi):
         for j in range(Wi):
@@ -154,9 +122,9 @@ def cross_correlation(f, g):
 
     out = None
     ### YOUR CODE HERE
-    pass
+    g = np.flip(np.flip(g, axis=1), axis=0)
+    out = conv_fast(f, g)
     ### END YOUR CODE
-
     return out
 
 def zero_mean_cross_correlation(f, g):
@@ -176,7 +144,9 @@ def zero_mean_cross_correlation(f, g):
 
     out = None
     ### YOUR CODE HERE
-    pass
+    meanVal = np.mean(g)
+    g = g-meanVal
+    out = cross_correlation(f, g)
     ### END YOUR CODE
 
     return out
@@ -200,7 +170,15 @@ def normalized_cross_correlation(f, g):
 
     out = None
     ### YOUR CODE HERE
-    pass
+    Hi, Wi = f.shape
+    Hk, Wk = g.shape
+    out = np.zeros((Hi, Wi))
+    g = (g-np.mean(g))/np.std(g)
+    zeroPadImage = zero_pad(f, Hk//2, Wk//2)
+    for i in range(Hi):
+        for j in range(Wi):
+            subImage = zeroPadImage[i:i+Hk,j:j+Wk]
+            subImage = (subImage-np.mean(subImage))/np.std(subImage)
+            out[i, j] = np.sum(subImage*g)
     ### END YOUR CODE
-
     return out

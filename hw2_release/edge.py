@@ -139,11 +139,14 @@ def gradient(img):
     theta = np.zeros(img.shape)
 
     ### YOUR CODE HERE
-    pass
+    Gx = partial_x(img)
+    Gy = partial_y(img)
+    G = np.sqrt(np.square(Gx) + np.square(Gy))
+    theta = np.arctan2(Gy, Gx)
+    theta = np.where(theta >= 0, theta, theta + 2*np.pi)
+    theta = theta * 180 / np.pi
     ### END YOUR CODE
-
     return G, theta
-
 
 def non_maximum_suppression(G, theta):
     """ Performs non-maximum suppression.

@@ -92,6 +92,7 @@ def partial_x(img):
                   [-0.5, 0, 0.5],
                   [0, 0, 0]])
     Dx = np.flip(np.flip(Dx, 0), 1)
+    # Dx = 0.5* np.array([[1, 0, -1]])
     out = conv(img, Dx)
     ### END YOUR CODE
 
@@ -116,6 +117,7 @@ def partial_y(img):
                   [0, 0, 0],
                   [0, 0.5, 0]])
     Dy = np.flip(np.flip(Dy, 0), 1)
+    # Dy = 0.5* np.array([[1], [0], [-1]])
     out = conv(img, Dy)
     ### END YOUR CODE
     return out
@@ -168,9 +170,20 @@ def non_maximum_suppression(G, theta):
     theta = np.floor((theta + 22.5) / 45) * 45
     theta = (theta % 360.0).astype(np.int32)
 
-    #print(G)
     ### BEGIN YOUR CODE
-    pass
+    for i in range(H):
+        for j in range(W):
+            b = (theta[i,j]//45)%4
+            if (b == 0):
+                newVal = max(G[i,max(0, j-1)], G[i, min(j+1, W-1)])
+            elif (b == 1):
+                newVal = max(G[min(i+1, H-1),min(j+1,W-1)], G[max(i-1,0), max(j-1, 0)])
+            elif (b == 2):
+                newVal = max(G[min(i+1, H-1),j], G[max(i-1, 0), j])
+            elif (b == 3):
+                newVal = max(G[min(i+1, H-1),max(j-1, 0)], G[max(i-1, 0), min(j+1,W-1)])
+            out[i, j] = G[i, j] if (newVal <= G[i, j]) else 0
+
     ### END YOUR CODE
 
     return out

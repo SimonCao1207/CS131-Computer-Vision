@@ -7,7 +7,12 @@ Last modified: 10/18/2017
 Python Version: 3.5+
 """
 
+from inspect import stack
+import queue
+from socket import getnameinfo
+from matplotlib import textpath
 import numpy as np
+from pkg_resources import empty_provider
 
 def conv(image, kernel):
     """ An implementation of convolution filter.
@@ -208,8 +213,10 @@ def double_thresholding(img, high, low):
     weak_edges = np.zeros(img.shape, dtype=np.bool)
 
     ### YOUR CODE HERE
-    strong_edges = np.where(img > high, 1, 0)
-    weak_edges = np.where((img <= high).all() and (img > low).all(), 1, 0)
+    # strong_edges = np.where(img > high, 1, 0)
+    # weak_edges = np.where((img <= high).all() and (img > low).all(), 1, 0)
+    strong_edges = img > high
+    weak_edges = (img <= high) & (img > low)
     ### END YOUR CODE
 
     return strong_edges, weak_edges
@@ -268,7 +275,18 @@ def link_edges(strong_edges, weak_edges):
     edges = np.copy(strong_edges)
 
     ### YOUR CODE HERE
-    pass
+    visited = []
+    for indice in indices:
+        x, y = indice
+        queue = [get_neighbors(x, y, H, W)]
+        while (queue):
+            neighbors = queue.pop(0)
+            for neighbor in neighbors:
+                i, j = neighbor
+                if (weak_edges[i, j] and neighbor not in visited):
+                    visited.append(neighbor)
+                    queue.append(get_neighbors(i, j, H, W))
+                    edges[i, j] = weak_edges[i, j]
     ### END YOUR CODE
 
     return edges
@@ -286,9 +304,13 @@ def canny(img, kernel_size=5, sigma=1.4, high=20, low=15):
         edge: numpy array of shape(H, W).
     """
     ### YOUR CODE HERE
-    pass
+    kernel = gaussian_kernel(kernel_size, sigma)
+    smoothed = conv(img, kernel)
+    G, theta = gradient(smoothed)
+    nms = non_maximum_suppression(G, theta)
+    strong_edges, weak_edges  = double_thresholding(nms, high, low)
+    edge = link_edges(strong_edges, weak_edges)
     ### END YOUR CODE
-
     return edge
 
 

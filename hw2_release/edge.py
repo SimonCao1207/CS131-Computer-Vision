@@ -7,6 +7,7 @@ Last modified: 10/18/2017
 Python Version: 3.5+
 """
 
+from cmath import cos
 from inspect import stack
 import queue
 from socket import getnameinfo
@@ -348,13 +349,10 @@ def hough_transform(img):
     # Find rho corresponding to values in thetas
     # and increment the accumulator in the corresponding coordiate.
     ### YOUR CODE HERE
-    for y in ys:
-        for x in xs:
-            for theta_idx in range(num_thetas):
-                rho = x*cos_t[theta_idx] + y*sin_t[theta_idx]
-                theta = thetas[theta_idx]
-                rho_idx = np.argmin(np.abs(rhos - rho))
-                accumulator[rho_idx][theta_idx] += 1
+    for y, x in zip(ys, xs):
+        for theta_idx in range(num_thetas):
+            rho = x*cos_t[theta_idx] + y*sin_t[theta_idx]
+            accumulator[int(rho + diag_len), theta_idx] += 1
     ### END YOUR CODE
 
     return accumulator, rhos, thetas

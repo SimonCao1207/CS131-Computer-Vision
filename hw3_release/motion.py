@@ -7,9 +7,22 @@ Last modified: 12/02/2017
 Python Version: 3.5+
 """
 
+from cmath import log
+from sklearn import neighbors
 import numpy as np
 from skimage.transform import pyramid_gaussian
 
+
+def get_neighbors(y, x, window_size):
+    startX = x - window_size//2
+    endX = x + window_size // 2
+    startY = y - window_size//2
+    endY = y + window_size // 2
+    lst = []
+    for i in range(startY, endY + 1):
+        for j in range(startX, endX + 1):
+            lst.append((i, j))
+    return lst
 
 def lucas_kanade(img1, img2, keypoints, window_size=5):
     """Estimate flow vector at each keypoint using Lucas-Kanade method.
@@ -48,11 +61,20 @@ def lucas_kanade(img1, img2, keypoints, window_size=5):
         y, x = int(round(y)), int(round(x))
 
         ### YOUR CODE HERE
-        pass
+        # Better solution is to use slicing with numpy array to get patch of image. 
+        H, W = len(img1), len(img1[0])
+        neighbors = get_neighbors(y, x, window_size)
+        A, b = [], []
+        for (i, j) in neighbors:
+            if (i >= 0 and j >= 0  and  i < H and j < W):
+                A.append([Iy[i, j], Ix[i, j]])
+                b.append(-It[i, j])
+        A, b = np.array(A), np.array(b)
+        flow_vector = np.dot(np.linalg.inv(A.T.dot(A)), A.T.dot(b))
+        flow_vectors.append(flow_vector)
         ### END YOUR CODE
 
     flow_vectors = np.array(flow_vectors)
-
     return flow_vectors
 
 
@@ -167,7 +189,9 @@ def compute_error(patch1, patch2):
     assert patch1.shape == patch2.shape, "Different patch shapes"
     error = 0
     ### YOUR CODE HERE
-    pass
+    patch1 = (patch1 - np.mean(patch1))/np.std(patch1)
+    patch2 = (patch2 - np.mean(patch2))/np.std(patch2)
+    error = np.mean(np.square(patch1 - patch2))
     ### END YOUR CODE
     return error
 
